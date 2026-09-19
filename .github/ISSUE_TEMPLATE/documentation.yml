@@ -1,0 +1,36 @@
+---
+name: Documentation
+description: Report missing, unclear, or outdated documentation
+title: "[Docs]: "
+labels: ["documentation", "triage"]
+body:
+  - type: dropdown
+    id: location
+    attributes:
+      label: Where is the documentation issue?
+      options:
+        - README.md
+        - CONTRIBUTING.md
+        - ARCHITECTURE.md (if exists)
+        - API docs (tRPC procedures)
+        - Code comments / JSDoc
+        - Deployment guides
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: What's wrong?
+      description: Missing, unclear, outdated, or incorrect
+      placeholder: The quick start guide references an old command...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Fix
+      description: What should it say instead?
+      placeholder: Update the command to...
