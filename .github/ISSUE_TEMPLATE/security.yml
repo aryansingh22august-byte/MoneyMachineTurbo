@@ -1,0 +1,68 @@
+---
+name: Security Vulnerability
+description: Report a security vulnerability (DO NOT use for non-security issues)
+title: "[Security]: "
+labels: ["security", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **⚠️ For security vulnerabilities, please also email security@aryansingh22august.com directly.**
+        Do not disclose details publicly until we've had a chance to address them.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Critical (RCE, auth bypass, data leak)
+        - High (privilege escalation, injection)
+        - Medium (info disclosure, CSRF)
+        - Low (minor info leak, hardening)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Vulnerability Description
+      description: Clear description of the vulnerability
+      placeholder: |
+        The endpoint /api/... does not validate...
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: What could an attacker achieve?
+      placeholder: |
+        An attacker could access user portfolios...
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps
+      description: Minimal steps to demonstrate the issue
+      placeholder: |
+        1. Send request to...
+        2. Observe...
+
+  - type: textarea
+    id: mitigation
+    attributes:
+      label: Suggested Mitigation
+      description: How should this be fixed?
+      placeholder: |
+        Add validation to...
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have not disclosed this publicly
+          required: true
+        - label: This is a genuine security issue (not a feature request)
+          required: true
