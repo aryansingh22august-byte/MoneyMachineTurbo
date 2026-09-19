@@ -1,0 +1,73 @@
+---
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! Please describe your idea clearly so we can evaluate it.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the system would this affect?
+      options:
+        - Frontend (React/TypeScript)
+        - Backend API (Node.js/tRPC)
+        - Python ML Service
+        - Database (Drizzle/PostgreSQL)
+        - Docker/Deployment
+        - Swarm Intelligence (MiroFish)
+        - Upstox/WebSocket
+        - Paper Trading
+        - Authentication
+        - Documentation
+        - CI/CD
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this solve? What's the pain point?
+      placeholder: Currently, users cannot...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your ideal solution
+      placeholder: Add a new endpoint that...
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any other approaches you've thought of?
+      placeholder: Could also use...
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Mockups, diagrams, links to references, etc.
+      placeholder: |
+        - Mockup: [link]
+        - Reference: [link]
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: This aligns with the project's scope (Indian stock analytics)
+          required: true
+        - label: I'm willing to implement this (or help test)
+          required: false
