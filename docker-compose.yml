@@ -1,0 +1,82 @@
+# Local development stack.
+#
+# Corrected from the previous version, which could not start:
+#   - referenced `Dockerfile` at the repo root (the file is `Dockerfile.node`)
+#   - provisioned MySQL and handed the app a mysql:// DATABASE_URL, while
+#     server/db.ts connects with postgres-js against a pgTable schema
+#   - passed JWT_SECRET only, so the access gate fell back to its hardcoded
+#     default password
+
+services:
+  # Main Node.js application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-money_machine}
+      - ML_API_URL=http://ml-service:5000
+      - JWT_SECRET=${JWT_SECRET:?set JWT_SECRET in .env (openssl rand -hex 32)}
+      - SESSION_SECRET=${SESSION_SECRET:?set SESSION_SECRET in .env (openssl rand -hex 32)}
+      - ACCESS_PASSWORD=${ACCESS_PASSWORD:?set ACCESS_PASSWORD in .env}
+    depends_on:
+      db:
+        condition: service_healthy
+      ml-service:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # Python ML Service
+  ml-service:
+    build:
+      # server/ml/Dockerfile copies its build context wholesale ("COPY . .") and
+      # expects requirements.txt at the root of that context.
+      context: ./server/ml
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MODEL_DIR=/app/models
+    volumes:
+      - ml-models:/app/models
+    networks:
+      - app-network
+    healthcheck:
+      # The image is python:3.11-slim, which ships no curl.
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:5000/health', timeout=5).status==200 else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      # Kronos model download + initial training can take several minutes.
+      start_period: 180s
+
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-money_machine}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-money_machine}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db-data:
+  ml-models:
+
+networks:
+  app-network:
+    driver: bridge
