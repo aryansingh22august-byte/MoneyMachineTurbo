@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: money-machine-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:password@money-machine-db:5432/railway
+      - ML_API_URL=http://ml-service:5000
+      - ACCESS_PASSWORD=your_strong_password_here
+      - SESSION_SECRET=generate_with_openssl_rand_hex_32
+      - COOKIE_SECRET=generate_with_openssl_rand_hex_32
+      - ALPHA_VANTAGE_API_KEY=your_alpha_vantage_key_here
+      - GROQ_API_KEY=your_groq_key_here
+      - UPSTOX_API_KEY=your_upstox_key_here
+      - UPSTOX_API_SECRET=your_upstox_secret_here
+      - UPSTOX_ACCESS_TOKEN=your_upstox_token_here
+      - UPSTOX_REDIRECT_URI=http://localhost:3000/api/upstox/callback
+    depends_on:
+      db:
+        condition: service_healthy
+      ml-service:
+        condition: service_healthy
+    networks:
+      - money-machine-net
+
+  ml-service:
+    build:
+      context: ./server/ml
+      dockerfile: Dockerfile
+    container_name: money-machine-ml
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=5000
+    networks:
+      - money-machine-net
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:5000/health\")' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  db:
+    image: postgres:16-alpine
+    container_name: money-machine-db
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=railway
+    ports:
+      - "5433:5432"
+    volumes:
+      - money_machine_postgres_data:/var/lib/postgresql/data
+    networks:
+      - money-machine-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d railway"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  money_machine_postgres_data:
+    external: true
+
+networks:
+  money-machine-net:
+    driver: bridge
