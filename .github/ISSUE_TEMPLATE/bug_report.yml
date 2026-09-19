@@ -1,0 +1,94 @@
+---
+name: Bug Report
+description: Report a bug or unexpected behavior
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please fill out the sections below so we can reproduce and fix it quickly.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version / Commit
+      description: Which version or commit hash are you using?
+      placeholder: "v1.0.0 or abc1234"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the system is affected?
+      options:
+        - Frontend (React/TypeScript)
+        - Backend API (Node.js/tRPC)
+        - Python ML Service
+        - Database (Drizzle/PostgreSQL)
+        - Docker/Deployment
+        - Swarm Intelligence (MiroFish)
+        - Upstox/WebSocket
+        - Paper Trading
+        - Authentication
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Clear and concise description of the bug
+      placeholder: What happened? What did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Minimal steps to reproduce the issue
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Error Output
+      description: Paste relevant logs, stack traces, or error messages
+      render: shell
+      placeholder: |
+        Error: Something went wrong
+        at Server._core.index.ts:42
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Your setup details
+      placeholder: |
+        - OS: Ubuntu 22.04 / macOS 14 / Windows 11
+        - Node: 20.x
+        - Python: 3.11
+        - PostgreSQL: 16
+        - Docker: 24.x
+        - Deploy: Local / Railway / Render
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues
+          required: true
+        - label: I have tested on the latest main branch
+          required: true
+        - label: This is not a duplicate
+          required: true
