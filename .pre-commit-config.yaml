@@ -1,0 +1,69 @@
+# .pre-commit-config.yaml
+# Install: pip install pre-commit && pre-commit install
+# Run: pre-commit run --all-files
+
+repos:
+  # General checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: detect-private-key
+      - id: detect-aws-credentials
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-case-conflict
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Secret detection
+  - repo: https://github.com/trufflesecurity/trufflehog
+    rev: v3.88.0
+    hooks:
+      - id: trufflehog
+        args: ['--no-verification']
+
+  # Python formatting/linting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # TypeScript/JS formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.4.2
+    hooks:
+      - id: prettier
+        types_or: [javascript, typescript, json, yaml, markdown, css, html]
+        additional_dependencies: [prettier@3.4.2]
+
+  # Docker
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint
+        args: ['--ignore=DL3008', '--ignore=DL3007']
+
+  # Local secret check for staged files
+  - repo: local
+    hooks:
+      - id: no-secrets-in-staged
+        name: "No secrets in staged files"
+        entry: bash -c 'git diff --cached | grep -iE "(api[_-]?key|secret|password|token|private[_-]?key)\s*[:=]\s*[\"'\''][^\"'\'']{8,}[\"'\'']" && echo "❌ Potential secret detected in staged changes!" && exit 1 || exit 0'
+        language: system
+        stages: [commit]
+        verbose: true
+
+      - id: no-console-log
+        name: "No console.log in staged files"
+        entry: bash -c 'git diff --cached -- "*.ts" "*.tsx" "*.js" "*.jsx" | grep "^+" | grep -E "console\.(log|debug|info|warn|error)\(" && echo "❌ console.log detected in staged changes!" && exit 1 || exit 0'
+        language: system
+        stages: [commit]
+        verbose: true
