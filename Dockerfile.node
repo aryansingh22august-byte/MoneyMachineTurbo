@@ -1,0 +1,32 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Ensure persistent data directory exists for Railway Volume mount
+RUN mkdir -p /data
+
+# Install pnpm
+RUN npm install -g pnpm@10
+
+# Copy lockfile first for better layer caching
+COPY package.json pnpm-lock.yaml ./
+COPY patches ./patches
+RUN pnpm install --frozen-lockfile
+
+# Copy source
+COPY client ./client
+COPY server ./server
+COPY shared ./shared
+COPY drizzle ./drizzle
+COPY tsconfig.json vite.config.ts drizzle.config.ts ./
+
+# Build client (Vite) + server (esbuild)
+RUN pnpm build
+
+# Single port — Railway only exposes one PORT per service.
+# WebSocket is attached to the same HTTP server at /ws path.
+EXPOSE 3000
+
+
+
+CMD ["pnpm", "start"]
