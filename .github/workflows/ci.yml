@@ -3,8 +3,22 @@ name: CI
 on:
   push:
     branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.pre-commit-config.yaml'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/dependabot.yml'
   pull_request:
     branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.pre-commit-config.yaml'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/dependabot.yml'
 
 env:
   NODE_VERSION: '20'
