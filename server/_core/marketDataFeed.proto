@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package com.upstox.marketdatafeeder.rpc.proto;
+
+// ── Upstox Market Data Feed v3 Protobuf Schema ───────────────────────────
+// Source: https://github.com/upstox/upstox-feed-sdk 
+// Used by MarketDataStreamerV3 to decode binary WebSocket messages
+
+enum Type {
+  initial_feed = 0;
+  market_feed = 1;
+}
+
+message FeedResponse {
+  Type type = 1;
+  map<string, Feed> feeds = 2;
+}
+
+message Feed {
+  FullFeed ff = 1;
+}
+
+message FullFeed {
+  MarketLevel marketFF = 1;
+  IndexFF indexFF = 2;
+  MarketOHLC marketOHLC = 3;
+  ExtendedFeedDetails eFeedDetails = 4;
+}
+
+message MarketLevel {
+  repeated Quote bidAskQuote = 1;
+}
+
+message Quote {
+  int32 bidQ = 1;
+  double bidP = 2;
+  int32 askQ = 3;
+  double askP = 4;
+}
+
+message IndexFF {
+  LTPC ltpc = 1;
+}
+
+message MarketOHLC {
+  repeated OHLC ohlc = 1;
+}
+
+message ExtendedFeedDetails {
+  double atp = 1;    // Average traded price
+  double cp = 2;     // Close price (previous day)
+  double vtt = 3;    // Volume traded today
+  double oi = 4;     // Open interest
+  double changeOi = 5;
+  double lastClose = 6;
+  double tbq = 7;    // Total buy quantity
+  double tsq = 8;    // Total sell quantity
+  double close = 9;
+  double lc = 10;    // Lower circuit
+  double uc = 11;    // Upper circuit
+  double yh = 12;    // 52-week high
+  double yl = 13;    // 52-week low
+  double fp = 14;    // Face price
+  int32  fyFlag = 15;
+  double pd = 16;
+  int32  dpn = 17;
+  int32  spn = 18;
+  double ltt = 19;   // Last trade time
+}
+
+message LTPC {
+  double ltp = 1;  // Last traded price
+  int64  ltq = 2;  // Last traded quantity
+  double cp = 3;   // Close price (previous day)
+  int64  ltt = 4;  // Last trade time (unix ms)
+}
+
+message OHLC {
+  string interval = 1;  // "1d", "I1", "I5", etc.
+  double open = 2;
+  double high = 3;
+  double low = 4;
+  double close = 5;
+  int64  volume = 6;
+  int64  ts = 7;        // Timestamp
+}

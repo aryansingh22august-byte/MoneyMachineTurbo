@@ -1,0 +1,44 @@
+# Railway configuration for the Node.js / React app service (Money-Machine)
+# ⚠️  The Python ML service (beautiful-youthfulness) MUST have its Root Directory
+#     set to "server/ml" in the Railway dashboard — it uses server/ml/Dockerfile.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.node"
+
+[deploy]
+startCommand = "pnpm start"
+healthcheckPath = "/api/trpc/system.healthcheck"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+
+# Required environment variables (set in Railway dashboard).
+# Startup aborts in production if any of the required ones are missing or
+# malformed — see assertProductionEnv() in server/_core/env.ts.
+#
+#   DATABASE_URL      = postgres://…   ← MUST be postgres://. The app uses
+#                       postgres-js + a pgTable schema; a file:/sqlite: URL
+#                       fails to connect and every query silently returns [].
+#                       Use Railway's Postgres plugin, not the /data volume.
+#   ML_API_URL        = http://<ml-service-private-domain>:5000
+#   NODE_ENV          = production
+#   PORT              = 3000
+#   JWT_SECRET        = <32-char random string>  ← the code reads JWT_SECRET
+#                       (COOKIE_SECRET is accepted as an alias)
+#   ACCESS_PASSWORD   = <strong password for the site-wide UI gate>
+#   SESSION_SECRET    = <32-char random string>  (falls back to JWT_SECRET)
+#   UPSTOX_API_KEY    = (optional — Upstox live feed)
+#   UPSTOX_API_SECRET = (optional)
+#   UPSTOX_REDIRECT_URI = https://<your-railway-domain>/api/upstox/callback
+#   GROQ_API_KEY      = (optional — LLM sentiment analysis)
+#
+# On the Python ML service:
+#   MODEL_DIR         = /app/models  (volume mount, persists trained models)
+#   KRONOS_ENABLED    = false (default). Set true only after measuring startup
+#                       download time and per-predict latency — it adds
+#                       transformer inference to every symbol in the sync cycle.
+#
+# Railway Volume mount: /data (1 GB) — only needed for ML model persistence on
+# the Python service; the Node service's data lives in Postgres.
+# WebSocket shares PORT 3000 at path /ws — no separate port needed

@@ -1,0 +1,3 @@
+CREATE INDEX "newsSentiment_stockId_publishedAt_idx" ON "newsSentiment" USING btree ("stockId","publishedAt" DESC NULLS FIRST);--> statement-breakpoint
+CREATE INDEX "predictions_stockId_timestamp_id_idx" ON "predictions" USING btree ("stockId","timestamp" DESC NULLS FIRST,"id" DESC NULLS FIRST);--> statement-breakpoint
+CREATE INDEX "stockPrices_stockId_timestamp_id_idx" ON "stockPrices" USING btree ("stockId","timestamp" DESC NULLS FIRST,"id" DESC NULLS FIRST);
