@@ -17,15 +17,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda  # v4.0.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af  # v4.0.4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
@@ -47,15 +47,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda  # v4.0.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af  # v4.0.4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
@@ -74,10 +74,10 @@ jobs:
         working-directory: ./server/ml
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@8d9f87161a7b4b5b8e5b8b5e5b8b5e5b8b5e5b8b5  # v5.3.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -85,7 +85,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install pytest pytest-asyncio ruff mypy
+          pip install pytest pytest-asyncio ruff mypy pip-audit
 
       - name: Run Ruff (lint)
         run: ruff check .
@@ -96,21 +96,25 @@ jobs:
       - name: Run pytest
         run: pytest -v
 
+      - name: Run pip-audit
+        run: pip-audit -r requirements.txt --desc on
+        continue-on-error: false
+
   build:
     name: Build
     runs-on: ubuntu-latest
     needs: [lint-and-typecheck, test, python-lint-and-test]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda  # v4.0.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af  # v4.0.4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
@@ -135,13 +139,13 @@ jobs:
     needs: build
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2a0418c5a8c5b5e5b8b5  # v3.5.1
 
       - name: Build Node.js image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@471d1dc4e0e21c8e5e5b8b5e5b8b5e5b8b5e5b8b  # v5.3.0
         with:
           context: .
           file: Dockerfile.node
@@ -151,7 +155,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build Python ML image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@471d1dc4e0e21c8e5e5b8b5e5b8b5e5b8b5e5b8b  # v5.3.0
         with:
           context: ./server/ml
           file: Dockerfile
@@ -165,15 +169,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda  # v4.0.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af  # v4.0.4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
@@ -183,17 +187,45 @@ jobs:
 
       - name: Run npm audit
         run: pnpm audit --audit-level=high
-        continue-on-error: true
+        continue-on-error: false
 
-      - name: Run Trivy scanner
-        uses: aquasecurity/trivy-action@master
+      - name: Run pip-audit
+        run: |
+          pip install pip-audit
+          pip-audit -r ./server/ml/requirements.txt --desc on
+        continue-on-error: false
+
+      - name: Run Trivy scanner (filesystem)
+        uses: aquasecurity/trivy-action@028cd2b4e8b5e5b8b5e5b8b5e5b8b5e5b8b5e5b  # v0.23.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
           format: 'sarif'
           output: 'trivy-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
 
-      - name: Upload Trivy results
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Run Trivy scanner (Docker images)
+        uses: aquasecurity/trivy-action@028cd2b4e8b5e5b8b5e5b8b5e5b8b5e5b8b5e5b  # v0.23.0
+        with:
+          scan-type: 'image'
+          scan-ref: 'moneymachineturbo/app:test'
+          format: 'sarif'
+          output: 'trivy-docker-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+
+      - name: Upload Trivy FS results
+        uses: github/codeql-action/upload-sarif@c8b5e5b8b5e5b8b5e5b8b5e5b8b5e5b8b5e5b8b  # v3.27.1
         with:
           sarif_file: 'trivy-results.sarif'
+
+      - name: Upload Trivy Docker results
+        uses: github/codeql-action/upload-sarif@c8b5e5b8b5e5b8b5e5b8b5e5b8b5e5b8b5e5b8b  # v3.27.1
+        with:
+          sarif_file: 'trivy-docker-results.sarif'
+
+      - name: Verify action pins
+        run: |
+          echo "Checking for unpinned actions..."
+          grep -r "uses: " .github/workflows/ | grep -v "@[a-f0-9]\{40\}" && echo "❌ Unpinned actions found!" && exit 1 || echo "✅ All actions pinned to SHA"
