@@ -24,7 +24,7 @@ uvicorn[standard]>=0.24.0
 
 # Utilities
 pydantic>=2.0.0
-python-dotenv>=1.0.0
+python-dotenv>=1.2.3
 requests>=2.31.0
 
 # Removed: xgboost, transformers. Neither is imported anywhere under server/ml
