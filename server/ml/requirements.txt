@@ -16,7 +16,7 @@ einops>=0.7.0
 tqdm>=4.66.0
 
 # Market Data — for auto-training on startup without needing Node.js to push data
-yfinance>=0.2.36
+yfinance>=1.7.0
 
 # API Server
 fastapi>=0.104.0
