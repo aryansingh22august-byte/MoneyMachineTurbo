@@ -103,7 +103,7 @@
     "@types/react-dom": "^19.2.1",
     "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^5.0.4",
-    "add": "^2.0.6",
+    "add": "^2.0.9",
     "autoprefixer": "^10.4.20",
     "cookie-parser": "^1.4.7",
     "drizzle-kit": "^0.31.4",
